@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máscara Comercial – Pulse Telecom</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #002395;
+    --blue-mid: #0031c4;
+    --blue-light: #e8eeff;
+    --green: #16FF00;
+    --green-dim: #0dcc00;
+    --white: #FFFFFF;
+    --gray-100: #f4f6fb;
+    --gray-200: #e9ecf5;
+    --gray-400: #9aa3bf;
+    --gray-600: #4a5270;
+    --red: #e53e3e;
+    --yellow: #f6c700;
+    --purple: #6b21a8;
+    --purple-light: #f3e8ff;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-100);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px 80px;
+  }
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 740px;
+    box-shadow: 0 8px 48px rgba(0,35,149,0.18);
+    overflow: hidden;
+  }
+  .modal-header {
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+  }
+  .modal-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--blue);
+  }
+  .header-badge {
+    font-size: 10px; font-weight: 700;
+    background: var(--blue); color: var(--yellow);
+    padding: 3px 9px; border-radius: 99px; letter-spacing: 0.5px; margin-left: 6px;
+  }
+  .section { border-bottom: 1px solid var(--gray-200); }
+  .section-header {
+    background: var(--blue); color: var(--white);
+    padding: 10px 22px;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-header svg { width: 16px; height: 16px; opacity: 0.85; }
+  .section-body { padding: 20px 22px; }
+  .op-types { display: flex; gap: 12px; flex-wrap: wrap; }
+  .op-label {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 500; color: var(--gray-600);
+    padding: 9px 18px; border: 2px solid var(--gray-200); border-radius: 8px;
+    transition: all .18s; user-select: none;
+  }
+  .op-label input[type=radio] { display: none; }
+  .op-label.selected { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
+  .chip-section { margin-top: 18px; }
+  .chip-legend {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase;
+    color: var(--gray-600); margin-bottom: 8px;
+  }
+  .chip-types { display: flex; gap: 12px; flex-wrap: wrap; }
+  .chip-label {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; font-size: 13px; font-weight: 600; color: var(--gray-600);
+    padding: 8px 16px; border: 2px solid var(--gray-200); border-radius: 8px;
+    transition: all .18s; user-select: none;
+  }
+  .chip-label input[type=radio] { display: none; }
+  .chip-label.sel-fisico { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
+  .chip-label.sel-esim { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+  .esim-alert {
+    display: none; margin-top: 12px;
+    background: linear-gradient(135deg, #4a0d8f, #6b21a8);
+    color: white; border-radius: var(--radius);
+    padding: 13px 16px; gap: 12px; align-items: flex-start; font-size: 13px; line-height: 1.6;
+  }
+  .esim-alert.visible { display: flex; }
+  .esim-alert strong { color: #e9d5ff; }
+  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field-full { grid-column: 1 / -1; }
+  .field label {
+    display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.7px;
+    text-transform: uppercase; color: var(--gray-600); margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+    padding: 9px 13px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: #1a2040; background: var(--white); outline: none; transition: border-color .18s;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--blue-mid); background: var(--blue-light); }
+  .field input::placeholder, .field textarea::placeholder { color: var(--gray-400); font-size: 13px; }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .checklist { display: flex; flex-direction: column; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--gray-200);
+  }
+  .check-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .check-item:first-child { padding-top: 0; }
+  .check-item.esim-only { display: none; }
+  .check-item.esim-only.visible { display: flex; }
+  .check-toggle {
+    width: 24px; height: 24px; min-width: 24px; border-radius: 6px;
+    border: 2px solid var(--gray-400); background: var(--white); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s; margin-top: 1px;
+  }
+  .check-toggle svg { display: none; width: 14px; height: 14px; }
+  .check-toggle.done { background: var(--green); border-color: var(--green-dim); }
+  .check-toggle.done svg { display: block; }
+  .check-toggle.fail { background: var(--red); border-color: #c53030; }
+  .check-toggle.fail svg { display: block; }
+  .check-content { flex: 1; }
+  .check-title { font-size: 14px; font-weight: 600; color: #1a2040; margin-bottom: 3px; }
+  .check-desc { font-size: 12.5px; color: var(--gray-600); line-height: 1.5; }
+  .check-tag {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-bottom: 5px;
+  }
+  .tag-obrig { background: #fff0e8; color: #c05621; }
+  .tag-info  { background: #e8f4ff; color: #2b6cb0; }
+  .tag-esim  { background: var(--purple-light); color: var(--purple); }
+  .check-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .btn-ok {
+    font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 6px;
+    border: none; cursor: pointer; transition: all .16s;
+  }
+  .btn-sim { background: #eaffea; color: #22863a; border: 1.5px solid #9be9a8; }
+  .btn-sim:hover, .btn-sim.active { background: var(--green); color: #003300; border-color: var(--green-dim); }
+  .btn-nao { background: #fff0f0; color: var(--red); border: 1.5px solid #feb2b2; }
+  .btn-nao:hover, .btn-nao.active { background: var(--red); color: white; border-color: #c53030; }
+  .btn-incomp { background: var(--purple-light); color: var(--purple); border: 1.5px solid #d8b4fe; }
+  .btn-incomp:hover, .btn-incomp.active { background: var(--purple); color: white; border-color: var(--purple); }
+  .check-note { display: none; margin-top: 8px; }
+  .check-note.visible { display: block; }
+  .check-note label {
+    display: block; font-size: 11px; color: var(--gray-600);
+    margin-bottom: 4px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .check-note input, .check-note textarea {
+    width: 100%; border: 1.5px solid var(--gray-200); border-radius: 7px;
+    padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1a2040; outline: none;
+  }
+  .check-note input:focus, .check-note textarea:focus { border-color: var(--blue-mid); }
+  .info-box {
+    background: linear-gradient(135deg, #001a8a, #002395);
+    color: white; border-radius: var(--radius); padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-top: 10px; font-size: 13px; line-height: 1.6;
+  }
+  .info-box strong { color: var(--green); }
+  /* WHATSAPP PREVIEW */
+  .wa-preview-section { background: #e8f5e9; display: none; }
+  .wa-preview-header {
+    background: #25d366; color: white; padding: 10px 22px;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .wa-preview-body { padding: 16px 22px; }
+  .wa-bubble {
+    background: white; border-radius: 0 12px 12px 12px;
+    padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    font-family: monospace; font-size: 13px; white-space: pre-wrap;
+    color: #1a1a1a; line-height: 1.55; max-height: 280px; overflow-y: auto;
+    border-left: 4px solid #25d366;
+  }
+  .status-bar {
+    padding: 14px 22px; background: var(--gray-100); border-top: 1px solid var(--gray-200);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .progress-track { flex: 1; height: 8px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--blue), var(--green));
+    border-radius: 99px; width: 0%; transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label { font-size: 12px; font-weight: 600; color: var(--blue); white-space: nowrap; }
+  .modal-footer {
+    padding: 16px 22px; display: flex; gap: 10px;
+    justify-content: flex-end; background: var(--white);
+    border-top: 1px solid var(--gray-200); flex-wrap: wrap;
+  }
+  .btn-footer {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 7px; transition: all .18s;
+  }
+  .btn-limpar { background: var(--gray-200); color: var(--gray-600); }
+  .btn-limpar:hover { background: #d0d5e8; }
+  .btn-preview { background: #e8f5e9; color: #1e6e42; border: 1.5px solid #a5d6a7; }
+  .btn-preview:hover { background: #c8e6c9; }
+  .btn-copiar { background: #25d366; color: white; }
+  .btn-copiar:hover { background: #1ebe59; }
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a2040; color: var(--green);
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 12px 28px; border-radius: 99px; opacity: 0; pointer-events: none;
+    transition: all .3s; box-shadow: 0 4px 24px rgba(0,0,0,0.3); z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 560px) {
+    .fields-grid { grid-template-columns: 1fr; }
+    .op-types, .chip-types { flex-direction: column; }
+    body { padding: 12px 6px 60px; }
+    .btn-footer { flex: 1; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="modal">
+
+  <div class="modal-header">
+    <div class="modal-header-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+      Máscara Comercial – Ativação &amp; Portabilidade
+      <span class="header-badge">v2</span>
+    </div>
+  </div>
+
+  <!-- TIPO DE OPERAÇÃO -->
+  <div class="section">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Tipo de Operação
+    </div>
+    <div class="section-body">
+      <div class="op-types">
+        <label class="op-label" onclick="selectOp(this,'ativacao')">
+          <input type="radio" name="operacao" value="ativacao"> 📶 ATIVAÇÃO DE LINHA
+        </label>
+        <label class="op-label" onclick="selectOp(this,'portabilidade')">
+          <input type="radio" name="operacao" value="portabilidade"> 🔄 PORTABILIDADE
+        </label>
+        <label class="op-label" onclick="selectOp(this,'ambos')">
+          <input type="radio" name="operacao" value="ambos"> 📋 AMBOS
+        </label>
+      </div>
+      <div class="chip-section">
+        <div class="chip-legend">Tipo de Chip</div>
+        <div class="chip-types">
+          <label class="chip-label" onclick="selectChip(this,'fisico')">
+            <input type="radio" name="chip" value="fisico"> 💳 Chip Físico (SIM)
+          </label>
+          <label class="chip-label" onclick="selectChip(this,'esim')">
+            <input type="radio" name="chip" value="esim"> ✨ eSIM (Digital)
+          </label>
+        </div>
+        <div class="esim-alert" id="esimAlert">
+          <div style="font-size:20px;min-width:24px">⚠️</div>
+          <div><strong>eSIM selecionado:</strong> verifique obrigatoriamente se o aparelho do cliente suporta eSIM antes de prosseguir. O item 5 do checklist será exibido automaticamente.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DADOS DO CONTRATANTE -->
+  <div class="section">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Dados do Contratante
+    </div>
+    <div class="section-body">
+      <div class="fields-grid">
+        <div class="field field-full">
+          <label>Nome do Contratante</label>
+          <input id="fNome" type="text" placeholder="Nome completo conforme cadastro IXC" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>CPF</label>
+          <input id="fCpf" type="text" placeholder="000.000.000-00" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>Telefone do Cliente</label>
+          <input id="fTel" type="text" placeholder="(00) 00000-0000" oninput="onFieldChange()">
+        </div>
+        <div class="field field-full">
+          <label>📱 Modelo do Aparelho</label>
+          <input id="fModelo" type="text" placeholder="Ex: Samsung Galaxy A55, iPhone 15, Motorola G84…" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>ICCID do Chip <small style="font-size:9px;color:var(--gray-400)">(se chip físico)</small></label>
+          <input id="fIccid" type="text" placeholder="89550…" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>Operadora Atual (MVNO)</label>
+          <input id="fOp" type="text" placeholder="Ex: TIM, Claro, Vivo…" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>Número a Portar (se houver)</label>
+          <input id="fNumPortar" type="text" placeholder="(00) 00000-0000" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>Plano Contratado</label>
+          <input id="fPlano" type="text" placeholder="Ex: 15GB + 1000 Min" oninput="onFieldChange()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="section">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Checklist Comercial
+    </div>
+    <div class="section-body">
+      <div class="checklist">
+
+        <!-- 1 -->
+        <div class="check-item" id="item-1">
+          <div class="check-toggle" id="toggle-1" onclick="cycleToggle(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="check-content">
+            <span class="check-tag tag-obrig">Obrigatório</span>
+            <div class="check-title">1. Linha está ativa?</div>
+            <div class="check-desc">Confirmar se a linha está ativa e funcional na operadora atual. Linha inativa impede a portabilidade.</div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-1-sim" onclick="selectBtn(1,'sim')">✔ Sim – Ativa</button>
+              <button class="btn-ok btn-nao" id="btn-1-nao" onclick="selectBtn(1,'nao')">✘ Não – Inativa</button>
+            </div>
+            <div class="check-note" id="note-1-nao">
+              <label>Observação</label>
+              <input type="text" placeholder="Descreva a situação da linha…" oninput="onFieldChange()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="check-item" id="item-2">
+          <div class="check-toggle" id="toggle-2" onclick="cycleToggle(2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="check-content">
+            <span class="check-tag tag-obrig">Obrigatório</span>
+            <div class="check-title">2. Linha está no nome do contratante correto?</div>
+            <div class="check-desc">O titular deve ter o <strong>mesmo CPF</strong> cadastrado no IXC. Titularidade divergente impede a portabilidade.</div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-2-sim" onclick="selectBtn(2,'sim')">✔ Sim – Confere</button>
+              <button class="btn-ok btn-nao" id="btn-2-nao" onclick="selectBtn(2,'nao')">✘ Não – Diverge</button>
+            </div>
+            <div class="check-note" id="note-2-nao">
+              <label>Nome do titular atual</label>
+              <input type="text" placeholder="Nome completo do titular atual…" oninput="onFieldChange()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="check-item" id="item-3">
+          <div class="check-toggle" id="toggle-3" onclick="cycleToggle(3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="check-content">
+            <span class="check-tag tag-obrig">Obrigatório</span>
+            <div class="check-title">3. Chip consegue receber e responder SMS?</div>
+            <div class="check-desc">Solicitar que o cliente teste o SMS com outra linha. A Anatel enviará um SMS que o cliente precisa responder para confirmar a portabilidade.</div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-3-sim" onclick="selectBtn(3,'sim')">✔ Sim – Funciona</button>
+              <button class="btn-ok btn-nao" id="btn-3-nao" onclick="selectBtn(3,'nao')">✘ Não – Com falha</button>
+            </div>
+            <div class="check-note" id="note-3-nao">
+              <label>Descreva o problema</label>
+              <textarea placeholder="Ex: não recebe SMS, chip bloqueado…" oninput="onFieldChange()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="check-item" id="item-4">
+          <div class="check-toggle" id="toggle-4" onclick="cycleToggle(4)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="check-content">
+            <span class="check-tag tag-info">Informativo</span>
+            <div class="check-title">4. Cliente informado sobre o prazo de resposta do SMS de portabilidade?</div>
+            <div class="check-desc">Orientar sobre o prazo e procedimento.</div>
+            <div class="info-box">
+              <div style="font-size:20px;min-width:24px">⏱️</div>
+              <div>O SMS de portabilidade é enviado após o registro. O cliente tem <strong>até 24 horas</strong> para responder. Sem resposta, a solicitação é <strong>cancelada automaticamente</strong> e precisa ser refeita.</div>
+            </div>
+            <div class="check-actions" style="margin-top:10px">
+              <button class="btn-ok btn-sim" id="btn-4-sim" onclick="selectBtn(4,'sim')">✔ Cliente ciente</button>
+              <button class="btn-ok btn-nao" id="btn-4-nao" onclick="selectBtn(4,'nao')">✘ Não informado</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 – eSIM only -->
+        <div class="check-item esim-only" id="item-5">
+          <div class="check-toggle" id="toggle-5" onclick="cycleToggle(5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="check-content">
+            <span class="check-tag tag-esim">eSIM</span>
+            <div class="check-title">5. Aparelho do cliente é compatível com eSIM?</div>
+            <div class="check-desc">Verificar o modelo informado nos dados acima e confirmar suporte a eSIM. Aparelhos incompatíveis não conseguem ativar a linha digital.<br><br>
+              <strong>Exemplos compatíveis:</strong> iPhone XS ou superior · Samsung Galaxy S21+ · Motorola Edge 40+ · Google Pixel 3+<br>
+              <strong>Geralmente incompatíveis:</strong> aparelhos de entrada/intermediários mais antigos que 2021.
+            </div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-5-sim" onclick="selectBtn(5,'sim')">✔ Compatível</button>
+              <button class="btn-ok btn-nao" id="btn-5-nao" onclick="selectBtn(5,'nao')">✘ Incompatível</button>
+              <button class="btn-ok btn-incomp" id="btn-5-incomp" onclick="selectBtn(5,'incomp')">⚠ Não verificado</button>
+            </div>
+            <div class="check-note" id="note-5-nao">
+              <label>Observação</label>
+              <input type="text" placeholder="Ex: modelo incompatível, oferecer chip físico…" oninput="onFieldChange()">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- OBSERVAÇÕES -->
+  <div class="section">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Observações Gerais
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Relato do Atendimento</label>
+        <textarea id="fObs" rows="3" placeholder="Descreva o atendimento, pendências ou orientações passadas ao cliente…" oninput="onFieldChange()"></textarea>
+      </div>
+      <div class="fields-grid" style="margin-top:14px">
+        <div class="field">
+          <label>Colaborador Responsável</label>
+          <input id="fColab" type="text" placeholder="Nome do atendente" oninput="onFieldChange()">
+        </div>
+        <div class="field">
+          <label>Data / Hora</label>
+          <input id="dtAtend" type="datetime-local" oninput="onFieldChange()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP PREVIEW -->
+  <div class="wa-preview-section section" id="waSection">
+    <div class="wa-preview-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.008 22l4.932-1.418A9.952 9.952 0 0011.999 22c5.523 0 10-4.477 10-10S17.522 2 11.999 2zm0 18c-1.68 0-3.25-.456-4.6-1.254l-.33-.196-3.41.98.944-3.553-.214-.343A7.962 7.962 0 014 12c0-4.411 3.588-8 7.999-8 4.412 0 8 3.589 8 8s-3.588 8-8 8z"/></svg>
+      Pré-visualização – Como ficará no WhatsApp
+    </div>
+    <div class="wa-preview-body">
+      <div class="wa-bubble" id="waBubble"></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="status-bar">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0 / 4 concluídos</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="modal-footer">
+    <button class="btn-footer btn-limpar" onclick="limpar()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+      Limpar
+    </button>
+    <button class="btn-footer btn-preview" id="btnPreview" onclick="togglePreview()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span id="btnPreviewLabel">Ver prévia WhatsApp</span>
+    </button>
+    <button class="btn-footer btn-copiar" onclick="copiarMascara()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.008 22l4.932-1.418A9.952 9.952 0 0011.999 22c5.523 0 10-4.477 10-10S17.522 2 11.999 2zm0 18c-1.68 0-3.25-.456-4.6-1.254l-.33-.196-3.41.98.944-3.553-.214-.343A7.962 7.962 0 014 12c0-4.411 3.588-8 7.999-8 4.412 0 8 3.589 8 8s-3.588 8-8 8z"/></svg>
+      Copiar para WhatsApp
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✔ Copiado! Cole no grupo do WhatsApp.</div>
+
+<script>
+  // Init
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('dtAtend').value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  let currentOp = null, currentChip = null, esimActive = false, previewVisible = false;
+  const state = {1:null, 2:null, 3:null, 4:null, 5:null};
+
+  const svgCheck = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>`;
+  const svgX     = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+
+  function selectOp(el, val) {
+    document.querySelectorAll('.op-label').forEach(l => l.classList.remove('selected'));
+    el.classList.add('selected'); currentOp = val; onFieldChange();
+  }
+
+  function selectChip(el, val) {
+    document.querySelectorAll('.chip-label').forEach(l => l.classList.remove('sel-fisico','sel-esim'));
+    currentChip = val;
+    el.classList.add(val === 'fisico' ? 'sel-fisico' : 'sel-esim');
+    esimActive = val === 'esim';
+    document.getElementById('esimAlert').classList.toggle('visible', esimActive);
+    document.getElementById('item-5').classList.toggle('visible', esimActive);
+    updateProgress(); onFieldChange();
+  }
+
+  function selectBtn(id, val) {
+    state[id] = val;
+    ['sim','nao','incomp'].forEach(v => {
+      const b = document.getElementById(`btn-${id}-${v}`);
+      if (b) b.classList.remove('active');
+    });
+    const ab = document.getElementById(`btn-${id}-${val}`);
+    if (ab) ab.classList.add('active');
+    const note = document.getElementById(`note-${id}-nao`);
+    if (note) note.classList.toggle('visible', val === 'nao' || val === 'incomp');
+    // Toggle
+    const t = document.getElementById(`toggle-${id}`);
+    t.className = 'check-toggle';
+    if (val === 'sim') { t.classList.add('done'); t.innerHTML = svgCheck; }
+    else if (val === 'nao' || val === 'incomp') { t.classList.add('fail'); t.innerHTML = svgX; }
+    else t.innerHTML = svgCheck;
+    updateProgress(); onFieldChange();
+  }
+
+  function cycleToggle(id) {
+    const c = state[id];
+    if (!c) selectBtn(id,'sim');
+    else if (c === 'sim') selectBtn(id,'nao');
+    else selectBtn(id, null);
+  }
+
+  function updateProgress() {
+    const total = esimActive ? 5 : 4;
+    const done = Object.entries(state).filter(([k,v]) => {
+      if (k==='5' && !esimActive) return false;
+      return v !== null;
+    }).length;
+    document.getElementById('progressFill').style.width = (done/total*100)+'%';
+    document.getElementById('progressLabel').textContent = `${done} / ${total} concluídos`;
+  }
+
+  function gerarTextoWA() {
+    const v = id => document.getElementById(id)?.value.trim() || '—';
+    const nome   = v('fNome');
+    const cpf    = v('fCpf');
+    const tel    = v('fTel');
+    const modelo = v('fModelo');
+    const iccid  = v('fIccid');
+    const opAt   = v('fOp');
+    const numP   = v('fNumPortar');
+    const plano  = v('fPlano');
+    const obs    = v('fObs');
+    const colab  = v('fColab');
+    const dt     = v('dtAtend').replace('T',' ');
+
+    const opLabel = {ativacao:'📶 ATIVAÇÃO DE LINHA', portabilidade:'🔄 PORTABILIDADE', ambos:'📋 ATIVAÇÃO + PORTABILIDADE'}[currentOp] || '—';
+    const chipLabel = {fisico:'💳 Chip Físico (SIM)', esim:'✨ eSIM (Digital)'}[currentChip] || '—';
+
+    const ico = v => v==='sim'?'✅':v==='nao'?'❌':v==='incomp'?'⚠️':'⬜';
+    const lbl = (v, s, n, i) => v==='sim'?s:v==='nao'?n:v==='incomp'?(i||n):'_Pendente_';
+
+    const n1 = document.querySelector('#note-1-nao input')?.value.trim();
+    const n2 = document.querySelector('#note-2-nao input')?.value.trim();
+    const n3 = document.querySelector('#note-3-nao textarea')?.value.trim();
+    const n5 = document.querySelector('#note-5-nao input')?.value.trim();
+
+    let checks = '';
+    checks += `${ico(state[1])} *1. Linha ativa?* ${lbl(state[1],'Sim ✔','Não ✘')}\n`;
+    if (state[1]==='nao'&&n1) checks += `   _↳ ${n1}_\n`;
+    checks += `${ico(state[2])} *2. Titular confere com IXC?* ${lbl(state[2],'Sim ✔','Diverge ✘')}\n`;
+    if (state[2]==='nao'&&n2) checks += `   _↳ Titular atual: ${n2}_\n`;
+    checks += `${ico(state[3])} *3. SMS funciona?* ${lbl(state[3],'Sim ✔','Com falha ✘')}\n`;
+    if (state[3]==='nao'&&n3) checks += `   _↳ ${n3}_\n`;
+    checks += `${ico(state[4])} *4. Cliente ciente do prazo (24h)?* ${lbl(state[4],'Sim ✔','Não informado ✘')}\n`;
+    if (esimActive) {
+      checks += `${ico(state[5])} *5. Aparelho compatível com eSIM?* ${lbl(state[5],'Sim ✔','Incompatível ✘','Não verificado ⚠️')}\n`;
+      if ((state[5]==='nao'||state[5]==='incomp')&&n5) checks += `   _↳ ${n5}_\n`;
+    }
+
+    return `📋 *ATENDIMENTO COMERCIAL – PULSE TELECOM*
+━━━━━━━━━━━━━━━━━━━━━
+*Operação:* ${opLabel}
+*Chip:* ${chipLabel}
+━━━━━━━━━━━━━━━━━━━━━
+👤 *DADOS DO CONTRATANTE*
+• Nome: *${nome}*
+• CPF: ${cpf}
+• Telefone: ${tel}
+• Aparelho: *${modelo}*
+• ICCID: ${iccid}
+• Operadora atual: ${opAt}
+• Nº a portar: ${numP}
+• Plano: ${plano}
+━━━━━━━━━━━━━━━━━━━━━
+✅ *CHECKLIST*
+${checks.trim()}
+━━━━━━━━━━━━━━━━━━━━━
+📝 *OBSERVAÇÕES*
+${obs}
+━━━━━━━━━━━━━━━━━━━━━
+👷 ${colab} | 🕐 ${dt}`;
+  }
+
+  function onFieldChange() {
+    if (previewVisible) document.getElementById('waBubble').textContent = gerarTextoWA();
+  }
+
+  function togglePreview() {
+    previewVisible = !previewVisible;
+    document.getElementById('waSection').style.display = previewVisible ? 'block' : 'none';
+    document.getElementById('btnPreviewLabel').textContent = previewVisible ? 'Ocultar prévia' : 'Ver prévia WhatsApp';
+    if (previewVisible) document.getElementById('waBubble').textContent = gerarTextoWA();
+  }
+
+  function copiarMascara() {
+    navigator.clipboard.writeText(gerarTextoWA()).then(() => {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    });
+  }
+
+  function limpar() {
+    if (!confirm('Limpar todos os campos?')) return;
+    document.querySelectorAll('input[type=text], textarea').forEach(el => el.value='');
+    document.querySelectorAll('.op-label').forEach(l => l.classList.remove('selected'));
+    document.querySelectorAll('.chip-label').forEach(l => l.classList.remove('sel-fisico','sel-esim'));
+    currentOp=null; currentChip=null; esimActive=false;
+    document.getElementById('esimAlert').classList.remove('visible');
+    document.getElementById('item-5').classList.remove('visible');
+    for (let i=1;i<=5;i++) {
+      state[i]=null;
+      const t=document.getElementById(`toggle-${i}`);
+      if(t){t.className='check-toggle';t.innerHTML=svgCheck;}
+      ['sim','nao','incomp'].forEach(v=>{const b=document.getElementById(`btn-${i}-${v}`);if(b)b.classList.remove('active');});
+      const n=document.getElementById(`note-${i}-nao`);if(n)n.classList.remove('visible');
+    }
+    updateProgress(); onFieldChange();
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
