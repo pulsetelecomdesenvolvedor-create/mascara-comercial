@@ -95,6 +95,28 @@
   .chip-label input[type=radio] { display: none; }
   .chip-label.sel-fisico { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
   .chip-label.sel-esim { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+  /* ICCID locked */
+  .iccid-locked {
+    background: var(--purple-light) !important;
+    border-color: var(--purple) !important;
+    color: var(--purple) !important;
+    font-weight: 700;
+    cursor: not-allowed;
+  }
+  /* FIBRA TOGGLE */
+  .fibra-row { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .fibra-btn {
+    font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 6px;
+    border: 1.5px solid var(--gray-200); background: var(--white);
+    color: var(--gray-600); cursor: pointer; transition: all .16s;
+  }
+  .fibra-btn.sel-fibra { background: #e8f5e9; color: #1e6e42; border-color: #a5d6a7; }
+  .fibra-btn.sel-nao-fibra { background: #fff8e1; color: #b45309; border-color: #fcd34d; }
+  .valor-destaque {
+    font-size: 18px; font-weight: 800; font-family: 'Syne', sans-serif;
+    color: var(--blue); letter-spacing: -0.5px;
+  }
+  .valor-hint { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
   .esim-alert {
     display: none; margin-top: 12px;
     background: linear-gradient(135deg, #4a0d8f, #6b21a8);
@@ -241,7 +263,7 @@
     <div class="modal-header-title">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
       Máscara Comercial – Ativação &amp; Portabilidade
-      <span class="header-badge">v2</span>
+      <span class="header-badge">v3</span>
     </div>
   </div>
 
@@ -306,7 +328,7 @@
           <input id="fModelo" type="text" placeholder="Ex: Samsung Galaxy A55, iPhone 15, Motorola G84…" oninput="onFieldChange()">
         </div>
         <div class="field">
-          <label>ICCID do Chip <small style="font-size:9px;color:var(--gray-400)">(se chip físico)</small></label>
+          <label>ICCID do Chip <small style="font-size:9px;color:var(--gray-400)" id="iccidHint">(se chip físico)</small></label>
           <input id="fIccid" type="text" placeholder="89550…" oninput="onFieldChange()">
         </div>
         <div class="field">
@@ -319,7 +341,15 @@
         </div>
         <div class="field">
           <label>Plano Contratado</label>
-          <input id="fPlano" type="text" placeholder="Ex: 15GB + 1000 Min" oninput="onFieldChange()">
+          <input id="fPlano" type="text" placeholder="Ex: 5GB, 12GB, 15GB…" oninput="onFieldChange()">
+        </div>
+        <div class="field field-full">
+          <label>💰 Valor do Plano — Vínculo com Fibra</label>
+          <div class="fibra-row">
+            <button class="fibra-btn" id="fibra-sim" onclick="selectFibra('sim')">🟢 Cliente Fibra</button>
+            <button class="fibra-btn" id="fibra-nao" onclick="selectFibra('nao')">🟡 Não é cliente Fibra</button>
+          </div>
+          <input id="fValor" type="text" placeholder="R$ 00,00" style="margin-top:8px" oninput="onFieldChange()">
         </div>
       </div>
     </div>
@@ -512,6 +542,7 @@
     `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
   let currentOp = null, currentChip = null, esimActive = false, previewVisible = false;
+  let currentFibra = null;
   const state = {1:null, 2:null, 3:null, 4:null, 5:null};
 
   const svgCheck = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>`;
@@ -529,6 +560,20 @@
     esimActive = val === 'esim';
     document.getElementById('esimAlert').classList.toggle('visible', esimActive);
     document.getElementById('item-5').classList.toggle('visible', esimActive);
+    // ICCID: auto-fill and lock for eSIM
+    const iccidInput = document.getElementById('fIccid');
+    const iccidHint  = document.getElementById('iccidHint');
+    if (esimActive) {
+      iccidInput.value = 'eSIM';
+      iccidInput.readOnly = true;
+      iccidInput.classList.add('iccid-locked');
+      iccidHint.textContent = '(preenchido automaticamente)';
+    } else {
+      iccidInput.value = '';
+      iccidInput.readOnly = false;
+      iccidInput.classList.remove('iccid-locked');
+      iccidHint.textContent = '(se chip físico)';
+    }
     updateProgress(); onFieldChange();
   }
 
@@ -568,6 +613,13 @@
     document.getElementById('progressLabel').textContent = `${done} / ${total} concluídos`;
   }
 
+  function selectFibra(val) {
+    currentFibra = val;
+    document.getElementById('fibra-sim').classList.toggle('sel-fibra',    val==='sim');
+    document.getElementById('fibra-nao').classList.toggle('sel-nao-fibra', val==='nao');
+    onFieldChange();
+  }
+
   function gerarTextoWA() {
     const v = id => document.getElementById(id)?.value.trim() || '—';
     const nome   = v('fNome');
@@ -578,6 +630,8 @@
     const opAt   = v('fOp');
     const numP   = v('fNumPortar');
     const plano  = v('fPlano');
+    const valor  = v('fValor');
+    const fibraLabel = currentFibra==='sim' ? '✅ Cliente Fibra' : currentFibra==='nao' ? '🟡 Não é cliente Fibra' : '—';
     const obs    = v('fObs');
     const colab  = v('fColab');
     const dt     = v('dtAtend').replace('T',' ');
@@ -620,6 +674,7 @@
 • Operadora atual: ${opAt}
 • Nº a portar: ${numP}
 • Plano: ${plano}
+• Valor: *${valor}* (${fibraLabel})
 ━━━━━━━━━━━━━━━━━━━━━
 ✅ *CHECKLIST*
 ${checks.trim()}
@@ -654,9 +709,16 @@ ${obs}
     document.querySelectorAll('input[type=text], textarea').forEach(el => el.value='');
     document.querySelectorAll('.op-label').forEach(l => l.classList.remove('selected'));
     document.querySelectorAll('.chip-label').forEach(l => l.classList.remove('sel-fisico','sel-esim'));
-    currentOp=null; currentChip=null; esimActive=false;
+    currentOp=null; currentChip=null; esimActive=false; currentFibra=null;
     document.getElementById('esimAlert').classList.remove('visible');
     document.getElementById('item-5').classList.remove('visible');
+    // Reset ICCID lock
+    const iccidInput = document.getElementById('fIccid');
+    iccidInput.readOnly = false; iccidInput.classList.remove('iccid-locked');
+    document.getElementById('iccidHint').textContent = '(se chip físico)';
+    // Reset fibra
+    document.getElementById('fibra-sim').classList.remove('sel-fibra');
+    document.getElementById('fibra-nao').classList.remove('sel-nao-fibra');
     for (let i=1;i<=5;i++) {
       state[i]=null;
       const t=document.getElementById(`toggle-${i}`);
