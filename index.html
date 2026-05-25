@@ -948,6 +948,41 @@
             </div>
           </div>
         </div>
+
+        <div class="check-item hidden" id="item-6">
+          <div class="check-toggle" id="toggle-6" onclick="cycleToggle(6)"></div>
+          <div class="check-content">
+            <span class="check-tag tag-obrig" id="tag-6">Obrigatório</span>
+            <div class="check-title" id="title-6"></div>
+            <div class="check-desc" id="desc-6"></div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-6-sim" type="button" onclick="selectBtn(6,'sim')"></button>
+              <button class="btn-ok btn-nao" id="btn-6-nao" type="button" onclick="selectBtn(6,'nao')"></button>
+            </div>
+            <div class="check-note" id="note-6-nao">
+              <label id="note-label-6">Observação</label>
+              <input type="text" id="note-input-6" placeholder="" oninput="onFieldChange()">
+            </div>
+          </div>
+        </div>
+
+        <div class="check-item hidden" id="item-7">
+          <div class="check-toggle" id="toggle-7" onclick="cycleToggle(7)"></div>
+          <div class="check-content">
+            <span class="check-tag tag-esim" id="tag-7">eSIM</span>
+            <div class="check-title" id="title-7">7. Aparelho do cliente é compatível com eSIM?</div>
+            <div class="check-desc" id="desc-7"></div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-7-sim" type="button" onclick="selectBtn(7,'sim')"></button>
+              <button class="btn-ok btn-nao" id="btn-7-nao" type="button" onclick="selectBtn(7,'nao')"></button>
+              <button class="btn-ok btn-incomp" id="btn-7-incomp" type="button" onclick="selectBtn(7,'incomp')">Não verificado</button>
+            </div>
+            <div class="check-note" id="note-7-nao">
+              <label id="note-label-7">Observação</label>
+              <input type="text" id="note-input-7" placeholder="" oninput="onFieldChange()">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1026,7 +1061,9 @@
   let currentFibra = null;
   let esimActive = false;
   let previewVisible = false;
-  const state = { 1: null, 2: null, 3: null, 4: null, 5: null };
+  const CHECK_ITEM_COUNT = 7;
+  const ESIM_CHECK_ITEM_ID = 7;
+  const state = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null };
 
   const productConfigs = {
     mvno: {
@@ -1107,6 +1144,32 @@
             noWa: 'Pendente',
             noteLabel: 'Pendência do chip',
             notePlaceholder: 'Ex: ICCID ausente, chip não entregue...'
+          },
+          5: {
+            tag: 'Obrigatório',
+            tagClass: 'tag-obrig',
+            title: '5. Celular está sem bloqueio de operadora?',
+            waTitle: '5. Celular sem bloqueio de operadora?',
+            desc: 'Verificar se o aparelho não possui bloqueio de operadora, como Claro, Vivo ou TIM. Atenção especial para aparelhos comprados diretamente em operadoras.',
+            yes: '✔ Sem bloqueio',
+            no: '✘ Possui bloqueio',
+            yesWa: 'Sem bloqueio',
+            noWa: 'Possui bloqueio',
+            noteLabel: 'Detalhe do bloqueio',
+            notePlaceholder: 'Ex: aparelho comprado na operadora, bloqueado para outro chip...'
+          },
+          6: {
+            tag: 'Obrigatório',
+            tagClass: 'tag-obrig',
+            title: '6. Cliente informado sobre cobertura em parceria com a TIM?',
+            waTitle: '6. Cliente ciente da cobertura TIM?',
+            desc: 'Informar que o sinal da Pulse funciona em parceria com a TIM. Onde houver cobertura TIM em território nacional, o sinal Pulse deve funcionar.',
+            yes: '✔ Informado',
+            no: '✘ Não informado',
+            yesWa: 'Informado',
+            noWa: 'Não informado',
+            noteLabel: 'Orientação pendente',
+            notePlaceholder: 'Ex: cliente não recebeu a explicação sobre cobertura...'
           }
         }
       },
@@ -1166,6 +1229,32 @@
             noWa: 'Não informado',
             noteLabel: 'Observação',
             notePlaceholder: 'Ex: cliente não recebeu a orientação...'
+          },
+          5: {
+            tag: 'Obrigatório',
+            tagClass: 'tag-obrig',
+            title: '5. Celular está sem bloqueio de operadora?',
+            waTitle: '5. Celular sem bloqueio de operadora?',
+            desc: 'Verificar se o aparelho não possui bloqueio de operadora, como Claro, Vivo ou TIM. Atenção especial para aparelhos comprados diretamente em operadoras.',
+            yes: '✔ Sem bloqueio',
+            no: '✘ Possui bloqueio',
+            yesWa: 'Sem bloqueio',
+            noWa: 'Possui bloqueio',
+            noteLabel: 'Detalhe do bloqueio',
+            notePlaceholder: 'Ex: aparelho comprado na operadora, bloqueado para outro chip...'
+          },
+          6: {
+            tag: 'Obrigatório',
+            tagClass: 'tag-obrig',
+            title: '6. Cliente informado sobre cobertura em parceria com a TIM?',
+            waTitle: '6. Cliente ciente da cobertura TIM?',
+            desc: 'Informar que o sinal da Pulse funciona em parceria com a TIM. Onde houver cobertura TIM em território nacional, o sinal Pulse deve funcionar.',
+            yes: '✔ Informado',
+            no: '✘ Não informado',
+            yesWa: 'Informado',
+            noWa: 'Não informado',
+            noteLabel: 'Orientação pendente',
+            notePlaceholder: 'Ex: cliente não recebeu a explicação sobre cobertura...'
           }
         }
       }
@@ -1308,8 +1397,8 @@
   const esimChecklistItem = {
     tag: 'eSIM',
     tagClass: 'tag-esim',
-    title: '5. Aparelho do cliente é compatível com eSIM?',
-    waTitle: '5. Aparelho compatível com eSIM?',
+    title: '7. Aparelho do cliente é compatível com eSIM?',
+    waTitle: '7. Aparelho compatível com eSIM?',
     desc: 'Verificar o modelo informado e confirmar suporte a eSIM. Aparelhos incompatíveis não conseguem ativar a linha digital.<br><br><strong>Exemplos compatíveis:</strong> iPhone XS ou superior · Samsung Galaxy S21+ · Motorola Edge 40+ · Google Pixel 3+<br><strong>Geralmente incompatíveis:</strong> aparelhos de entrada/intermediários mais antigos que 2021.',
     yes: '✔ Compatível',
     no: '✘ Incompatível',
@@ -1340,19 +1429,19 @@
   function getItemConfig(id) {
     const item = getOperationConfig().items[id];
     if (item) return item;
-    if (id === 5 && currentProduct === 'mvno') return esimChecklistItem;
+    if (id === ESIM_CHECK_ITEM_ID && currentProduct === 'mvno') return esimChecklistItem;
     return null;
   }
 
   function getActiveCheckIds() {
     if (!currentProduct || !currentOp) return [];
     const ids = Object.keys(getOperationConfig().items).map(Number).sort((a, b) => a - b);
-    if (currentProduct === 'mvno' && esimActive && !ids.includes(5)) ids.push(5);
+    if (currentProduct === 'mvno' && esimActive && !ids.includes(ESIM_CHECK_ITEM_ID)) ids.push(ESIM_CHECK_ITEM_ID);
     return ids;
   }
 
   function resetChecklistState() {
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= CHECK_ITEM_COUNT; i++) {
       state[i] = null;
       const toggle = document.getElementById(`toggle-${i}`);
       if (toggle) {
@@ -1422,10 +1511,12 @@
       document.querySelectorAll('.chip-label').forEach(label => label.classList.remove('sel-fisico', 'sel-esim'));
       document.querySelectorAll('input[name="chip"]').forEach(input => input.checked = false);
       document.getElementById('esimAlert').classList.remove('visible');
-      document.getElementById('item-5').classList.add('hidden');
+      for (let id = 5; id <= CHECK_ITEM_COUNT; id++) {
+        document.getElementById(`item-${id}`)?.classList.add('hidden');
+      }
     }
 
-    for (let id = 1; id <= 5; id++) {
+    for (let id = 1; id <= CHECK_ITEM_COUNT; id++) {
       const cfg = getActiveCheckIds().includes(id) ? getItemConfig(id) : null;
       const item = document.getElementById(`item-${id}`);
       if (item) item.classList.toggle('hidden', !cfg);
@@ -1522,8 +1613,8 @@
       iccidInput.readOnly = false;
       iccidInput.classList.remove('iccid-locked');
       iccidHint.textContent = '(chip físico obrigatório)';
-      state[5] = null;
-      resetVisualState(5);
+      state[ESIM_CHECK_ITEM_ID] = null;
+      resetVisualState(ESIM_CHECK_ITEM_ID);
     }
 
     document.getElementById('esimAlert').classList.toggle('visible', esimActive);
@@ -1551,7 +1642,7 @@
       return;
     }
 
-    if (!currentOp && id !== 5) {
+    if (!currentOp) {
       showToast('Selecione o tipo de solicitação primeiro.', true);
       return;
     }
@@ -1590,7 +1681,7 @@
       return;
     }
 
-    if (!currentOp && id !== 5) {
+    if (!currentOp) {
       showToast('Selecione o tipo de solicitação primeiro.', true);
       return;
     }
@@ -1865,7 +1956,9 @@ ${displayValue('fColab')} | ${dt}`;
     esimActive = false;
 
     document.getElementById('esimAlert').classList.remove('visible');
-    document.getElementById('item-5').classList.add('hidden');
+    for (let id = 5; id <= CHECK_ITEM_COUNT; id++) {
+      document.getElementById(`item-${id}`)?.classList.add('hidden');
+    }
 
     const iccidInput = document.getElementById('fIccid');
     iccidInput.readOnly = false;
