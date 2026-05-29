@@ -809,8 +809,12 @@
           <input id="fNome" type="text" placeholder="Nome completo conforme cadastro IXC" oninput="onFieldChange()">
         </div>
         <div class="field">
-          <label>CPF <span class="required">*</span></label>
-          <input id="fCpf" type="text" placeholder="000.000.000-00" oninput="onFieldChange()">
+          <label>CPF/CNPJ <span class="required">*</span></label>
+          <input id="fCpf" type="text" placeholder="CPF ou CNPJ" oninput="handleDocumentInput(this)">
+        </div>
+        <div class="field">
+          <label><span id="dateLabelText">Data de Nascimento</span> <span class="required">*</span></label>
+          <input id="fNascimento" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA" oninput="formatBirthDate(this)">
         </div>
         <div class="field">
           <label>Telefone de Contato <span class="required">*</span></label>
@@ -983,6 +987,24 @@
             </div>
           </div>
         </div>
+
+        <div class="check-item hidden" id="item-8">
+          <div class="check-toggle" id="toggle-8" onclick="cycleToggle(8)"></div>
+          <div class="check-content">
+            <span class="check-tag tag-esim" id="tag-8">eSIM</span>
+            <div class="check-title" id="title-8">8. Aparelho do cliente é compatível com eSIM?</div>
+            <div class="check-desc" id="desc-8"></div>
+            <div class="check-actions">
+              <button class="btn-ok btn-sim" id="btn-8-sim" type="button" onclick="selectBtn(8,'sim')"></button>
+              <button class="btn-ok btn-nao" id="btn-8-nao" type="button" onclick="selectBtn(8,'nao')"></button>
+              <button class="btn-ok btn-incomp" id="btn-8-incomp" type="button" onclick="selectBtn(8,'incomp')">Não verificado</button>
+            </div>
+            <div class="check-note" id="note-8-nao">
+              <label id="note-label-8">Observação</label>
+              <input type="text" id="note-input-8" placeholder="" oninput="onFieldChange()">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1061,9 +1083,9 @@
   let currentFibra = null;
   let esimActive = false;
   let previewVisible = false;
-  const CHECK_ITEM_COUNT = 7;
-  const ESIM_CHECK_ITEM_ID = 7;
-  const state = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null };
+  const CHECK_ITEM_COUNT = 8;
+  const ESIM_CHECK_ITEM_ID = 8;
+  const state = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null };
 
   const productConfigs = {
     mvno: {
@@ -1085,6 +1107,29 @@
       dddPlaceholder: 'Ex: 24 3100-5544 ou 12 3100-5588'
     }
   };
+
+  function birthDateChecklistItem(id) {
+    return { dateCheck: true, id };
+  }
+
+  function documentDateChecklistItem(id) {
+    const label = getDateFieldLabel();
+    const lowerLabel = label.toLowerCase();
+
+    return {
+      tag: 'Obrigatório',
+      tagClass: 'tag-obrig',
+      title: `${id}. ${label} está correta no IXC?`,
+      waTitle: `${id}. ${label} confere no IXC?`,
+      desc: `Confirmar se a ${lowerLabel} informada no atendimento está corretamente preenchida no cadastro do cliente no IXC.`,
+      yes: '✔ Confere',
+      no: '✘ Diverge',
+      yesWa: 'Confere',
+      noWa: 'Diverge',
+      noteLabel: `Divergência na ${lowerLabel}`,
+      notePlaceholder: `Ex: ${lowerLabel} ausente no IXC, divergente do documento...`
+    };
+  }
 
   const checklistByProductOperation = {
     mvno: {
@@ -1170,7 +1215,8 @@
             noWa: 'Não informado',
             noteLabel: 'Orientação pendente',
             notePlaceholder: 'Ex: cliente não recebeu a explicação sobre cobertura...'
-          }
+          },
+          7: birthDateChecklistItem(7)
         }
       },
       portabilidade: {
@@ -1255,7 +1301,8 @@
             noWa: 'Não informado',
             noteLabel: 'Orientação pendente',
             notePlaceholder: 'Ex: cliente não recebeu a explicação sobre cobertura...'
-          }
+          },
+          7: birthDateChecklistItem(7)
         }
       }
     },
@@ -1316,7 +1363,8 @@
             noWa: 'Pendente',
             noteLabel: 'Pendência comercial',
             notePlaceholder: 'Ex: valor não informado, dúvida comercial...'
-          }
+          },
+          5: birthDateChecklistItem(5)
         }
       },
       portabilidade: {
@@ -1388,7 +1436,8 @@
             noWa: 'Pendente',
             noteLabel: 'Pendência no documento',
             notePlaceholder: 'Ex: documento ilegível, documento não enviado...'
-          }
+          },
+          6: birthDateChecklistItem(6)
         }
       }
     }
@@ -1397,8 +1446,8 @@
   const esimChecklistItem = {
     tag: 'eSIM',
     tagClass: 'tag-esim',
-    title: '7. Aparelho do cliente é compatível com eSIM?',
-    waTitle: '7. Aparelho compatível com eSIM?',
+    title: '8. Aparelho do cliente é compatível com eSIM?',
+    waTitle: '8. Aparelho compatível com eSIM?',
     desc: 'Verificar o modelo informado e confirmar suporte a eSIM. Aparelhos incompatíveis não conseguem ativar a linha digital.<br><br><strong>Exemplos compatíveis:</strong> iPhone XS ou superior · Samsung Galaxy S21+ · Motorola Edge 40+ · Google Pixel 3+<br><strong>Geralmente incompatíveis:</strong> aparelhos de entrada/intermediários mais antigos que 2021.',
     yes: '✔ Compatível',
     no: '✘ Incompatível',
@@ -1416,6 +1465,50 @@
       `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   }
 
+  function getDocumentDigits() {
+    return value('fCpf').replace(/\D/g, '');
+  }
+
+  function getDocumentType() {
+    return getDocumentDigits().length > 11 ? 'cnpj' : 'cpf';
+  }
+
+  function getDocumentLabel() {
+    return getDocumentType() === 'cnpj' ? 'CNPJ' : 'CPF';
+  }
+
+  function getDateFieldLabel() {
+    return getDocumentType() === 'cnpj' ? 'Data de Fundação' : 'Data de Nascimento';
+  }
+
+  function formatCpfCnpj(digits) {
+    if (digits.length > 11) {
+      return digits
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d)/, '$1-$2');
+    }
+
+    return digits
+      .replace(/^(\d{3})(\d)/, '$1.$2')
+      .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/\.(\d{3})(\d)/, '.$1-$2');
+  }
+
+  function updateDocumentDateLabels() {
+    const dateLabel = document.getElementById('dateLabelText');
+    if (dateLabel) dateLabel.textContent = getDateFieldLabel();
+  }
+
+  function handleDocumentInput(el) {
+    const digits = el.value.replace(/\D/g, '').slice(0, 14);
+    el.value = formatCpfCnpj(digits);
+    updateDocumentDateLabels();
+    applyChecklistConfig();
+    onFieldChange();
+  }
+
   function getProductConfig() {
     return productConfigs[currentProduct] || productConfigs.mvno;
   }
@@ -1428,6 +1521,7 @@
 
   function getItemConfig(id) {
     const item = getOperationConfig().items[id];
+    if (item?.dateCheck) return documentDateChecklistItem(item.id || id);
     if (item) return item;
     if (id === ESIM_CHECK_ITEM_ID && currentProduct === 'mvno') return esimChecklistItem;
     return null;
@@ -1477,6 +1571,7 @@
 
   function applyChecklistConfig() {
     applyFlowVisibility();
+    updateDocumentDateLabels();
 
     const productConfig = getProductConfig();
     const operationConfig = getOperationConfig();
@@ -1716,6 +1811,16 @@
     return value(id) || '-';
   }
 
+  function formatBirthDate(el) {
+    const digits = el.value.replace(/\D/g, '').slice(0, 8);
+    const parts = [];
+    if (digits.length > 0) parts.push(digits.slice(0, 2));
+    if (digits.length > 2) parts.push(digits.slice(2, 4));
+    if (digits.length > 4) parts.push(digits.slice(4, 8));
+    el.value = parts.join('/');
+    onFieldChange();
+  }
+
   function handleNewNumberInput(el) {
     if (currentProduct === 'mvno') {
       el.value = el.value.replace(/\D/g, '').slice(0, 2);
@@ -1725,10 +1830,27 @@
     onFieldChange();
   }
 
+  function isValidBirthDate(text) {
+    const match = text.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return false;
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    const date = new Date(year, month - 1, day);
+    const today = new Date();
+
+    return date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day &&
+      date <= today;
+  }
+
   function getRequiredFields() {
     const fields = [
       ['fNome', 'Nome do contratante'],
-      ['fCpf', 'CPF'],
+      ['fCpf', getDocumentLabel()],
+      ['fNascimento', getDateFieldLabel()],
       ['fTel', 'Telefone de contato'],
       ['fPlano', 'Plano contratado'],
       ['fValor', 'Valor do plano'],
@@ -1738,8 +1860,8 @@
     ];
 
     if (currentProduct === 'mvno') {
-      fields.splice(3, 0, ['fModelo', 'Modelo do aparelho']);
-      fields.splice(4, 0, ['fIccid', currentChip === 'esim' ? 'eSIM' : 'ICCID do chip']);
+      fields.splice(4, 0, ['fModelo', 'Modelo do aparelho']);
+      fields.splice(5, 0, ['fIccid', currentChip === 'esim' ? 'eSIM' : 'ICCID do chip']);
     }
 
     if (currentOp === 'portabilidade') {
@@ -1772,6 +1894,14 @@
       getRequiredFields().forEach(([id, label]) => {
         if (!value(id)) add(`Preencha o campo: ${label}.`, id);
       });
+    }
+
+    if (value('fCpf') && ![11, 14].includes(getDocumentDigits().length)) {
+      add('Informe um CPF com 11 dígitos ou CNPJ com 14 dígitos.', 'fCpf');
+    }
+
+    if (value('fNascimento') && !isValidBirthDate(value('fNascimento'))) {
+      add(`Informe ${getDateFieldLabel().toLowerCase()} no formato DD/MM/AAAA.`, 'fNascimento');
     }
 
     if (currentProduct === 'mvno' && currentOp === 'linha_nova' && value('fDdd') && !/^\d{2}$/.test(value('fDdd'))) {
@@ -1848,7 +1978,8 @@
 
     const dados = [
       `- Nome: *${displayValue('fNome')}*`,
-      `- CPF: ${displayValue('fCpf')}`,
+      `- ${getDocumentLabel()}: ${displayValue('fCpf')}`,
+      `- ${getDateFieldLabel()}: ${displayValue('fNascimento')}`,
       `- Telefone de contato: ${displayValue('fTel')}`
     ];
 
